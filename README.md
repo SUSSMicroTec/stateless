@@ -1,5 +1,7 @@
-# Stateless [![Build status](https://ci.appveyor.com/api/projects/status/github/dotnet-state-machine/stateless?svg=true)](https://ci.appveyor.com/project/DotnetStateMachine/stateless/branch/master)
-
+# SUSS MicroTec flavor of the Stateless state machine
+For the original **Stateless** state machine go to [https://github.com/dotnet-state-machine/stateless](https://github.com/dotnet-state-machine/stateless)  
+  
+  
 **Create *state machines* and lightweight *state machine-based workflows* directly in .NET code:**
 
 ```csharp
