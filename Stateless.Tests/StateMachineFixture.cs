@@ -296,10 +296,35 @@ namespace Stateless.Tests
         }
 
         [Test]
-        public void TheOnTransitionEventFiresBeforeTheOnEntryEvent()
+        public void TheOnTransitioningEventFiresBeforeTheOnEntryEvent()
         {
             var sm = new StateMachine<State, Trigger>(State.B);
-            var expectedOrdering = new List<string> { "OnExit", "OnTransitioned", "OnEntry" };
+            var expectedOrdering = new List<string> { "OnExit", "OnTransitioning", "OnEntry" };
+            var actualOrdering = new List<string>();
+
+            sm.Configure(State.B)
+                .Permit(Trigger.X, State.A)
+                .OnExit(() => actualOrdering.Add("OnExit"));
+
+            sm.Configure(State.A)
+                .OnEntry(() => actualOrdering.Add("OnEntry"));
+
+            sm.OnTransitioning(t => actualOrdering.Add("OnTransitioning"));
+
+            sm.Fire(Trigger.X);
+
+            Assert.AreEqual(expectedOrdering.Count, actualOrdering.Count);
+            for (int i = 0; i < expectedOrdering.Count; i++)
+            {
+                Assert.AreEqual(expectedOrdering[i], actualOrdering[i]);
+            }
+        }
+
+        [Test]
+        public void TheOnTransitionedEventFiresAfterTheOnEntryEvent()
+        {
+            var sm = new StateMachine<State, Trigger>(State.B);
+            var expectedOrdering = new List<string> { "OnExit", "OnEntry", "OnTransitioned" };
             var actualOrdering = new List<string>();
 
             sm.Configure(State.B)

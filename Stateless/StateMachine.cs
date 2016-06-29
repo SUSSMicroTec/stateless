@@ -16,6 +16,7 @@ namespace Stateless
         readonly Func<TState> _stateAccessor;
         readonly Action<TState> _stateMutator;
         Action<TState, TTrigger> _unhandledTriggerAction;
+        event Action<Transition> _onTransitioning;
         event Action<Transition> _onTransitioned;
 
         /// <summary>
@@ -202,11 +203,11 @@ namespace Stateless
 
                 State = transition.Destination;
                 var newRepresentation = GetRepresentation(transition.Destination);
-                var onTransitioned = _onTransitioned;
-                if (onTransitioned != null)
-                    onTransitioned(transition);
+                _onTransitioning?.Invoke(transition);
 
                 newRepresentation.Enter(transition, args);
+
+                _onTransitioned?.Invoke(transition);
             }
         }
 
@@ -331,14 +332,26 @@ namespace Stateless
 
         /// <summary>
         /// Registers a callback that will be invoked every time the statemachine
-        /// transitions from one state into another.
+        /// has transitioned from one state into another.
         /// </summary>
-        /// <param name="onTransitionAction">The action to execute, accepting the details
+        /// <param name="onTransitionedAction">The action to execute, accepting the details
         /// of the transition.</param>
-        public void OnTransitioned(Action<Transition> onTransitionAction)
+        public void OnTransitioned(Action<Transition> onTransitionedAction)
         {
-            if (onTransitionAction == null) throw new ArgumentNullException("onTransitionAction");
-            _onTransitioned += onTransitionAction;
+            if (onTransitionedAction == null) throw new ArgumentNullException(nameof(onTransitionedAction));
+            _onTransitioned += onTransitionedAction;
+        }
+
+        /// <summary>
+        /// Registers a callback that will be invoked every time the statemachine
+        /// has transitioned from one state into another.
+        /// </summary>
+        /// <param name="onTransitionedAction">The action to execute, accepting the details
+        /// of the transition.</param>
+        public void OnTransitioning(Action<Transition> onTransitionedAction)
+        {
+            if (onTransitionedAction == null) throw new ArgumentNullException(nameof(onTransitionedAction));
+            _onTransitioning += onTransitionedAction;
         }
     }
 }
